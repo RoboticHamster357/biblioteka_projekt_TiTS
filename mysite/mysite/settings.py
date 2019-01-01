@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'polls.apps.PollsConfig',
     'accounts.apps.AccountsConfig',
     'sendemail.apps.SendemailConfig'
+    
+
 ]
 
 MIDDLEWARE = [

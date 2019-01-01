@@ -1,29 +1,57 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
-from django.shortcuts import get_object_or_404, render
 
-
-from .models import Question
+from polls.models import Book, Author, BookInstance, Genre
 
 
 def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    template = loader.get_template('polls/index.html')
+    """View function for home page of site."""
+
+    # Generate counts of some of the main objects
+    num_books = Book.objects.all().count()
+    num_instances = BookInstance.objects.all().count()
+    
+    # Available books (status = 'a')
+    num_instances_available = BookInstance.objects.filter(status__exact='a').count()
+    
+    # The 'all()' is implied by default.    
+    num_authors = Author.objects.count()
+    
     context = {
-        'latest_question_list': latest_question_list,
+        'num_books': num_books,
+        'num_instances': num_instances,
+        'num_instances_available': num_instances_available,
+        'num_authors': num_authors,
     }
-    return HttpResponse(template.render(context, request))
+
+    # Render the HTML template index.html with the data in the context variable
+    return render(request, 'index.html', context=context)
 
 
-def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/detail.html', {'question': question})
+from django.views import generic
+
+class BookListView(generic.ListView):
+    model = Book
+    #context_object_name = 'book_list'   # your own name for the list as a template variable
+    #template_name = 'catalog/book_list.html'  # Specify your own template name/location
 
 
-def results(request, question_id):
-    response = "You're looking at the results of question %s."
-    return HttpResponse(response % question_id)
+class BookDetailView(generic.DetailView):
+    model = Book
 
-def vote(request, question_id):
-    return HttpResponse("You're voting on question %s." % question_id)
+class AuthorListView(generic.ListView):
+    """Generic class-based list view for a list of authors."""
+    model = Author
+    paginate_by = 10 
+
+
+class AuthorDetailView(generic.DetailView):
+    """Generic class-based detail view for an author."""
+    model = Author
+
+
+
+
+
+    
